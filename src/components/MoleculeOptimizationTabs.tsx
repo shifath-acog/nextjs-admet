@@ -208,7 +208,7 @@ export default function MoleculeOptimizationTabs({ predictions, modelChoice }: M
                     variant="outline"
                     role="combobox"
                     aria-expanded={sensitizerOpen}
-                    className="w-full max-w-md justify-between text-gray-700"
+                    className="w-full max-w-md justify-between text-gray-700 truncate"
                   >
                     {selectedSensitizer || 'Select SMILES'}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -275,7 +275,7 @@ export default function MoleculeOptimizationTabs({ predictions, modelChoice }: M
                     variant="outline"
                     role="combobox"
                     aria-expanded={nonSensitizerOpen}
-                    className="w-full max-w-md justify-between text-gray-700"
+                    className="w-full max-w-md justify-between text-gray-700 truncate"
                   >
                     {selectedNonSensitizer || 'Select SMILES'}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
