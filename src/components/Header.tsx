@@ -42,9 +42,9 @@ export default function Header() {
       </Link>
       {/* Centered Content */}
       <div className="flex flex-col items-center">
-        <h1 className="text-xl font-bold text-primary">Agandock</h1>
+        <h1 className="text-xl font-bold text-primary">Property Modelling</h1>
         <p className="text-sm text-muted-foreground">
-          Docking and binding free energy calculations
+          GenAI powered molecule optimization
         </p>
       </div>
       <div className="w-[120px]"></div>
