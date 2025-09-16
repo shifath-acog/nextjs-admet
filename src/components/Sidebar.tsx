@@ -17,7 +17,7 @@ interface SidebarProps {
 
 export default function Sidebar({ onPredict }: SidebarProps) {
   const [inputTab, setInputTab] = useState<'smiles' | 'file'>('smiles');
-  const [smiles, setSmiles] = useState('');
+  const [smiles, setSmiles] = useState('CC(=O)Nc1ccc(cc1)O');
   const [modelChoice, setModelChoice] = useState('in vitro (H-CLAT)');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,6 +33,26 @@ export default function Sidebar({ onPredict }: SidebarProps) {
       }
     },
   });
+
+  const handleTrySample = async () => {
+    if (selectedFile && selectedFile.name === 'smiles.csv') {
+      setSelectedFile(null);
+      toast.info('Sample file removed');
+    } else {
+      try {
+        const response = await fetch('/smiles.csv');
+        const blob = await response.blob();
+        const file = new File([blob], 'smiles.csv', { type: 'text/csv' });
+        setSelectedFile(file);
+        setInputTab('file');
+        setErrors((prev) => ({ ...prev, file: '' }));
+        toast.success('Sample file loaded');
+      } catch (error) {
+        toast.error('Failed to load sample file');
+        console.error(error);
+      }
+    }
+  };
 
   const validateInputs = () => {
     const newErrors: { [key: string]: string } = {};
@@ -100,7 +120,7 @@ export default function Sidebar({ onPredict }: SidebarProps) {
   };
 
   return (
-    <Card className="fixed left-4 w-[340px] h-[calc(100vh-180px)] p-6 bg-white/80 backdrop-blur-md border border-gray-200 shadow-lg overflow-auto">
+    <Card className="fixed left-4 w-[340px] p-6 bg-white/80 backdrop-blur-md border border-gray-200 shadow-lg overflow-auto">
       <div className="space-y-4">
         <Tabs value={inputTab} onValueChange={(value) => setInputTab(value as 'smiles' | 'file')}>
           <TabsList className="grid w-full grid-cols-2">
@@ -146,6 +166,12 @@ export default function Sidebar({ onPredict }: SidebarProps) {
                 </div>
                 {errors.file && <p className="text-red-600 text-sm mt-1">{errors.file}</p>}
               </div>
+              <Button
+                onClick={handleTrySample}
+                className="w-full bg-gray-200 text-gray-800 hover:bg-gray-300"
+              >
+                {selectedFile && selectedFile.name === 'smiles.csv' ? 'Remove Sample CSV' : 'Try Sample CSV'}
+              </Button>
             </div>
           </TabsContent>
         </Tabs>
