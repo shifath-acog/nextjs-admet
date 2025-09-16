@@ -20,6 +20,7 @@ interface Prediction {
   Confidence: string;
   Applicability: string;
   ChemicalStructure?: string;
+  GroundTruth?: string;
 }
 
 interface PredictionTableProps {
@@ -73,87 +74,117 @@ export default function PredictionTable({ data, searchQuery, onSearchChange }: P
   };
 
   const columns = useMemo(
-    () => [
-      columnHelper.accessor('SMILES', {
-        header: ({ table }) => (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              const column = table.getColumn('SMILES');
-              column?.toggleSorting(column.getIsSorted() === 'asc');
-            }}
-            className="text-gray-700 font-semibold p-0"
-          >
-            SMILES
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        ),
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('Prediction', {
-        header: ({ table }) => (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              const column = table.getColumn('Prediction');
-              column?.toggleSorting(column.getIsSorted() === 'asc');
-            }}
-            className="text-gray-700 font-semibold p-0"
-          >
-            Prediction
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        ),
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('Applicability', {
-        header: ({ table }) => (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              const column = table.getColumn('Applicability');
-              column?.toggleSorting(column.getIsSorted() === 'asc');
-            }}
-            className="text-gray-700 font-semibold p-0"
-          >
-            Applicability
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        ),
-        cell: (info) => info.getValue(),
-      }),
-      columnHelper.accessor('ChemicalStructure', {
-        header: 'Chemical Structure',
-        cell: (info) => {
-          const htmlContent = info.getValue();
+    () => {
+      const hasGroundTruth = data.some(row => row.GroundTruth);
 
-          if (!htmlContent) {
-            return (
-              <div className="flex justify-center">
-                <div className="w-[60px] h-[60px] rounded-md border border-gray-200 flex items-center justify-center text-gray-400 text-xs">
-                  No Image
+      const allColumns: any[] = [
+        columnHelper.accessor('SMILES', {
+          header: ({ table }) => (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                const column = table.getColumn('SMILES');
+                column?.toggleSorting(column.getIsSorted() === 'asc');
+              }}
+              className="text-gray-700 font-semibold p-0"
+            >
+              SMILES
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          ),
+          cell: (info) => info.getValue(),
+        }),
+      ];
+
+      if (hasGroundTruth) {
+        allColumns.push(
+          columnHelper.accessor('GroundTruth', {
+            header: ({ table }) => (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  const column = table.getColumn('GroundTruth');
+                  column?.toggleSorting(column.getIsSorted() === 'asc');
+                }}
+                className="text-gray-700 font-semibold p-0"
+              >
+                Ground Truth
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            ),
+            cell: (info) => info.getValue(),
+          })
+        );
+      }
+
+      allColumns.push(
+        columnHelper.accessor('Prediction', {
+          header: ({ table }) => (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                const column = table.getColumn('Prediction');
+                column?.toggleSorting(column.getIsSorted() === 'asc');
+              }}
+              className="text-gray-700 font-semibold p-0"
+            >
+              Prediction
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          ),
+          cell: (info) => info.getValue(),
+        }),
+        columnHelper.accessor('Applicability', {
+          header: ({ table }) => (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                const column = table.getColumn('Applicability');
+                column?.toggleSorting(column.getIsSorted() === 'asc');
+              }}
+              className="text-gray-700 font-semibold p-0"
+            >
+              Applicability
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          ),
+          cell: (info) => info.getValue(),
+        }),
+        columnHelper.accessor('ChemicalStructure', {
+          header: 'Chemical Structure',
+          cell: (info) => {
+            const htmlContent = info.getValue();
+
+            if (!htmlContent) {
+              return (
+                <div className="flex justify-center">
+                  <div className="w-[60px] h-[60px] rounded-md border border-gray-200 flex items-center justify-center text-gray-400 text-xs">
+                    No Image
+                  </div>
                 </div>
+              );
+            }
+
+            return (
+              <div
+                className="flex justify-center"
+                onClick={() => handleImageClick(htmlContent)}
+              >
+                <div
+                  className="w-[60px] h-[60px] rounded-md border border-gray-200 cursor-pointer overflow-hidden hover:border-gray-400 transition-colors flex items-center justify-center"
+                  dangerouslySetInnerHTML={{ __html: htmlContent }}
+                  style={{ minHeight: '60px', minWidth: '60px' }}
+                />
               </div>
             );
-          }
+          },
+          enableSorting: false,
+        })
+      );
 
-          return (
-            <div
-              className="flex justify-center"
-              onClick={() => handleImageClick(htmlContent)}
-            >
-              <div
-                className="w-[60px] h-[60px] rounded-md border border-gray-200 cursor-pointer overflow-hidden hover:border-gray-400 transition-colors flex items-center justify-center"
-                dangerouslySetInnerHTML={{ __html: htmlContent }}
-                style={{ minHeight: '60px', minWidth: '60px' }}
-              />
-            </div>
-          );
-        },
-        enableSorting: false,
-      }),
-    ],
-    []
+      return allColumns;
+    },
+    [data]
   );
 
   const table = useReactTable({

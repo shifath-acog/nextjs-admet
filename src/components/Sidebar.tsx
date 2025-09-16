@@ -79,10 +79,30 @@ export default function Sidebar({ onPredict }: SidebarProps) {
     try {
       const formData = new FormData();
       formData.append('model_choice', modelChoice);
+
+      let groundTruthMap = new Map<string, string>();
+
       if (inputTab === 'smiles') {
         formData.append('smiles', smiles);
       } else if (selectedFile) {
         formData.append('file', selectedFile);
+
+        const fileText = await selectedFile.text();
+        const lines = fileText.trim().split('\n');
+        const header = lines[0].split(',').map(h => h.trim());
+        const smilesIndex = header.indexOf('SMILES');
+        const groundTruthIndex = header.indexOf('Ground Truth');
+
+        if (smilesIndex !== -1 && groundTruthIndex !== -1) {
+          for (let i = 1; i < lines.length; i++) {
+            const row = lines[i].split(',').map(cell => cell.trim());
+            const smile = row[smilesIndex];
+            const groundTruth = row[groundTruthIndex];
+            if (smile && groundTruth) {
+              groundTruthMap.set(smile, groundTruth);
+            }
+          }
+        }
       }
 
       const response = await fetch('/api/predict', {
@@ -100,13 +120,17 @@ export default function Sidebar({ onPredict }: SidebarProps) {
       }
       const transformedData = {
         ...data,
-        predictions: Object.keys(data.predictions.SMILES).map((key) => ({
-          SMILES: data.predictions.SMILES[key],
-          Prediction: data.predictions.Prediction[key]?.replace(/<[^>]+>/g, '') || 'N/A',
-          Confidence: data.predictions['Confidence (%)'][key] || 'N/A',
-          Applicability: data.predictions.Applicability[key] || 'N/A',
-          ChemicalStructure: data.predictions['Chemical structure'][key] || '',
-        })),
+        predictions: Object.keys(data.predictions.SMILES).map((key) => {
+          const smile = data.predictions.SMILES[key];
+          return {
+            SMILES: smile,
+            Prediction: data.predictions.Prediction[key]?.replace(/<[^>]+>/g, '') || 'N/A',
+            Confidence: data.predictions['Confidence (%)'][key] || 'N/A',
+            Applicability: data.predictions.Applicability[key] || 'N/A',
+            ChemicalStructure: data.predictions['Chemical structure'][key] || '',
+            GroundTruth: groundTruthMap.get(smile),
+          }
+        }),
       };
       console.log('Transformed data:', transformedData);
       onPredict(transformedData, modelChoice);
