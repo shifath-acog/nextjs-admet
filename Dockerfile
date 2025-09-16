@@ -37,4 +37,4 @@ ENV NODE_ENV=production
 # Start the Next.js app in production mode
 CMD ["node", "server.js"]
 
-#docker run -d --name nextjs-admet   -p 3004:3000   --network admet_api nextjs-admet
+#docker run -d --name nextjs-admet  --label user="$USER" --label description="admet next ui"  --network admet_api nextjs-admet

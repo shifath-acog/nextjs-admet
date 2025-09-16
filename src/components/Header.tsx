@@ -1,26 +1,53 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function Header() {
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const controlHeader = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+    window.addEventListener("scroll", controlHeader);
+    return () => {
+      window.removeEventListener("scroll", controlHeader);
+    };
+  }, [lastScrollY]);
+
   return (
-    <header className="fixed top-0 left-0 w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-md text-gray-800 dark:text-gray-100 border-b border-gray-200 shadow-lg z-50 flex items-center justify-between px-6 py-4 h-16">
-      <div className="flex items-center">
+    <header
+      className={`fixed top-0 left-0 w-full bg-background text-foreground shadow-md z-50 flex items-center justify-between px-4 py-2 transition-transform duration-300 ease-in-out ${
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
+      {/* Logo - Clickable to navigate to home */}
+      <Link href="/" className="flex items-center">
         <Image
-          src="https://www.aganitha.ai/wp-content/uploads/2023/05/aganitha-logo.png"
+          src="/aganitha-logo.png"
           alt="Aganitha Logo"
           width={120}
-          height={40}
-          style={{ objectFit: 'contain' }}
+          height={120}
+          style={{ objectFit: "contain" }}
         />
-      </div>
+      </Link>
+      {/* Centered Content */}
       <div className="flex flex-col items-center">
-        <h1 className="text-xl font-bold text-gray-700 dark:text-gray-100">Property Modelling</h1>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          GenAI powered molecule optimization
+        <h1 className="text-xl font-bold text-primary">Agandock</h1>
+        <p className="text-sm text-muted-foreground">
+          Docking and binding free energy calculations
         </p>
       </div>
-      <div className="w-12"></div>
+      <div className="w-[120px]"></div>
     </header>
   );
 }

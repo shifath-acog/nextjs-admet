@@ -47,7 +47,7 @@ export default function MoleculeOptimizationTabs({ predictions, modelChoice }: M
 
   // Transform API response to CounterfactualPrediction array
   const transformApiResponse = (apiResponse: any): CounterfactualPrediction[] => {
-    const { predictions } = apiResponse;
+    const { CounterfactualPrediction: predictions } = apiResponse;
     if (!predictions || !predictions.SMILES) return [];
 
     const result: CounterfactualPrediction[] = [];
@@ -56,7 +56,7 @@ export default function MoleculeOptimizationTabs({ predictions, modelChoice }: M
     for (const key of keys) {
       result.push({
         SMILES: predictions.SMILES[key] || '',
-        Confidence: predictions['Similarity score']?.[key] || 'N/A',
+        Confidence: predictions.Confidence?.[key] || 'N/A',
         Prediction: predictions.Prediction?.[key] || 'N/A',
       });
     }
@@ -208,7 +208,7 @@ export default function MoleculeOptimizationTabs({ predictions, modelChoice }: M
                     variant="outline"
                     role="combobox"
                     aria-expanded={sensitizerOpen}
-                    className="w-full max-w-md justify-between text-gray-700 truncate"
+                    className="w-full max-w-md justify-between text-gray-700"
                   >
                     {selectedSensitizer || 'Select SMILES'}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -275,7 +275,7 @@ export default function MoleculeOptimizationTabs({ predictions, modelChoice }: M
                     variant="outline"
                     role="combobox"
                     aria-expanded={nonSensitizerOpen}
-                    className="w-full max-w-md justify-between text-gray-700 truncate"
+                    className="w-full max-w-md justify-between text-gray-700"
                   >
                     {selectedNonSensitizer || 'Select SMILES'}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
