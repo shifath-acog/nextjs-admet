@@ -1,0 +1,78 @@
+Project Overview
+This project is a web API designed to predict a chemical compound's potential to cause skin sensitization. It uses various machine learning models to analyze chemical structures and classify them as sensitizers or non-sensitizers.
+
+The entire application is containerized using Docker, making it portable and easy to deploy. The core of the project is a FastAPI web application that serves the prediction models.
+
+Understanding Skin Sensitization
+Skin sensitization, also known as allergic contact dermatitis, is an immune reaction that occurs after repeated skin contact with a specific substance.
+
+The process involves two key stages:
+
+First Contact (Sensitization): When your skin first touches a substance (a "sensitizer"), your immune system may learn to recognize it as a threat without any visible reaction.
+
+Subsequent Contact (Elicitation): Upon future exposure, the immune system is primed to react, causing symptoms like redness, itching, swelling, or blisters.
+
+In this context, chemicals are classified into two groups:
+
+A sensitizer is a chemical that can trigger this allergic reaction.
+
+A non-sensitizer is a chemical that does not cause this specific immune response, even with repeated exposure.
+
+The API's goal is to predict which category a chemical falls into.
+
+How the API Works: Models and Data
+The API does not connect to any live databases. Instead, it uses pre-trained models that are packaged with the application. The data used to train these models was sourced from scientific repositories like ChEMBL and Zenodo and is stored locally in CSV files.
+
+When you make a request, you must specify a model_choice. This argument tells the API which local model and its corresponding dataset to use for the prediction. For example, selecting "in vivo (LLNA)" directs the API to load the model trained on data from the Local Lymph Node Assay test.
+
+The Prediction Models Explained
+Each model corresponds to a different scientific method for testing skin sensitization. These tests fall into three main categories:
+
+In chemico: A test performed in a non-living, chemical environment.
+
+In vitro ("in glass"): A test performed on cells or tissues cultured in a lab.
+
+In vivo ("in a living thing"): A test performed on a whole, living organism.
+
+Here are the specific models available in the API:
+
+in chemico (DPRA)
+
+Full Name: Direct Peptide Reactivity Assay.
+
+How it Works: This test measures how strongly a chemical binds to synthetic peptides that mimic skin proteins. High reactivity suggests a higher likelihood of being a sensitizer.
+
+in vitro (KeratinoSens)
+
+How it Works: This test uses a human skin cell line (keratinocytes) to see if a chemical activates a specific genetic pathway known to be involved in the sensitization process.
+
+in vitro (h-CLAT)
+
+Full Name: Human Cell Line Activation Test.
+
+How it Works: This test uses a cell line that mimics immune cells. It measures whether the chemical causes these cells to display surface markers that are a key step in initiating an allergic response.
+
+in vivo (LLNA)
+
+Full Name: Local Lymph Node Assay.
+
+How it Works: This is an animal test, typically on mice. The chemical is applied to the mouse's ear, and researchers measure the resulting immune cell proliferation in the nearby lymph nodes.
+
+human
+
+How it Works: This model is trained on data from human studies, such as Human Repeat Insult Patch Tests (HRIPT) on volunteers and clinical data from patients.
+
+What is ADMET?
+ADMET is a core concept in pharmacology and toxicology that describes a substance's journey through the body. The acronym stands for:
+
+Absorption: How the substance enters the body.
+
+Distribution: Where the substance goes within the body.
+
+Metabolism: How the body breaks down the substance.
+
+Excretion: How the body removes the substance.
+
+Toxicity: What harmful effects the substance has.
+
+This project focuses specifically on one aspect of the "T" for Toxicity by predicting the potential for skin sensitization.
